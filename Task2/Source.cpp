@@ -4,7 +4,7 @@ using namespace std;
 
 int countPlate(int& n, int& m, int& a) {
 	int localWidth = 0, localLength = 0, localPlate = 0;
-	localWidth = ceil((double)n / (double)a); // ceil - округлить вверх до ближайшего целого
+	localWidth = ceil((double)n / (double)a); // ceil - round value UP
 	localLength = ceil((double)m / (double)a); 
 	return localPlate = localWidth * localLength;
 }
