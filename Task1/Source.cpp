@@ -11,6 +11,8 @@ int main() {
 
 	int x = 0;
 	cout << "Enter weight watermelon: "; cin >> x;
+	if (ifEven(x))
+		cout << "NO" << endl;
 	else
 		cout << "YES" << endl;
 
