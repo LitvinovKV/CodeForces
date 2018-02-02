@@ -86,6 +86,14 @@ class Road {
 		return true; // YES
 	}
 	
+	protected void finalize() {
+		try {
+			this.buff.close();
+		} catch (IOException e) {
+			System.out.println("ERROR - close file!");
+		}
+	}
+	
 	public void showTelepots() {
 		if (this.Dislocation == 0) return;
 		for (int i = 0; i < this.countTeleport; i++)
