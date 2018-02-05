@@ -49,4 +49,12 @@ class Football {
 	protected String getPosition() {
 		return this.strPosition;
 	}
+	
+	protected void finalize() {
+		try {
+			this.buff.close();
+		} catch (IOException e) {
+			System.out.println("ERROR - close file!");
+		}
+	}
 }
