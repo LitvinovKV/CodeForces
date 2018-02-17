@@ -74,31 +74,93 @@ class TreesAndImp {
 		for (int i = 0; i < this.trees.length; i++)
 			trees[i] = new Tree(Integer.parseInt(countBirdsOnTree[i]), 
 							Integer.parseInt(countMana[i]));
-		sortTreesToMana();
 	}
 	
 	protected void calculateAnswer() {
-		for (int i = 0; i < trees.length; i++) {
-			while (imp.get_Mana() >= trees[i].get_countMana() && 
-					trees[i].get_CountBirds() != 0) {
-				imp.minus_mana(trees[i].get_countMana());
-				imp.upgrade_Mana(this.callBirdMana);
-				trees[i].minus_CountBirds();
-				CountBirds++;
+		for (int i = 0; i <= trees.length - 1; i++) {
+			if (i == trees.length -1 ) {
+				countBirds(i);
+				continue;
 			}
-			imp.plus_mana(this.countPlusMana);
+			boolean flag = false;
+			int[] forwardTree = countBirdsOnTree(trees[i + 1], imp.get_Mana(), this.countPlusMana);
+			int[] thisTree = countBirdsOnTree(trees[i], imp.get_Mana(), 0);
+			if (thisTree[0] < forwardTree[0]) {
+				if (trees[i].get_CountBirds() > 0 && imp.get_Mana() > trees[i].get_countMana()) {
+					int for_forward = forwardTree[1] - countPlusMana;
+					imp.minus_mana(for_forward);
+					countBirds(i);
+					imp.plus_mana(forwardTree[1]);
+					flag = true;
+				}
+			}
+			else if (thisTree[0] == forwardTree[0]) {
+				if (thisTree[1] < forwardTree[1]) {
+					if (trees[i].get_CountBirds() > 0 && imp.get_Mana() > trees[i].get_countMana())
+						countBirds(i);
+				}
+				else if (imp.get_Mana() + this.countPlusMana > thisTree[1] + forwardTree[1])
+					countBirds(i);
+				else {
+					int for_forward = forwardTree[1] - countPlusMana;
+					imp.minus_mana(for_forward);
+					countBirds(i);
+					imp.plus_mana(forwardTree[1]);
+					flag = true;
+				}
+			}
+			else
+				countBirds(i);
+			if (flag == false) imp.plus_mana(this.countPlusMana);
 		}
 	}
 	
-	private void sortTreesToMana() {
-		for (int i = 0; i < trees.length; i++) {
-			for (int j = trees.length - 1; j > i; j--) {
-				if (trees[i].get_countMana() > trees[j].get_countMana()) {
-					Tree tree_tmp = trees[i];
-					trees[i] = trees[j];
-					trees[j] = tree_tmp;
-				}
+	private void countBirds(int indexTree) {
+		int n = trees[indexTree].get_CountBirds();
+		for (int i = 0; i < n; i++) {
+			if (imp.get_Mana() < trees[indexTree].get_countMana() 
+					|| trees[indexTree].get_CountBirds() == 0)
+				break;
+			CountBirds++;
+			trees[indexTree].minus_CountBirds();
+			imp.minus_mana(trees[indexTree].get_countMana());
+			imp.upgrade_Mana(callBirdMana);
+		}
+	}
+	
+	private int[] countBirdsOnTree(Tree Forward, int countMana, int plusMana) {
+		if (countMana + plusMana > imp.maxLevelMana)
+			countMana = imp.maxLevelMana;
+		else
+			countMana += plusMana;
+		
+		int BirdsMana = Forward.get_CountBirds() * Forward.get_countMana();
+		
+		if (BirdsMana > countMana) {
+			int count = 0;
+			for (int i = 0; i < Forward.get_CountBirds(); i++) {
+				if (countMana < Forward.get_countMana() || Forward.get_CountBirds() == 0) break;
+				count++;
+				countMana -= Forward.get_countMana();
 			}
+			int[] answer = {count, count * Forward.get_countMana(),Forward.get_countMana() };
+			return answer;
+		}
+		else {
+			int[] answer = {Forward.get_CountBirds(), Forward.get_CountBirds() * Forward.get_countMana(),
+					Forward.get_countMana()};
+			return answer;
+		}
+		
+	}
+	
+	protected void coutTrees() {
+		for (int i = 0; i < trees.length; i++) {
+			System.out.println("Tree #" + (i + 1));
+			System.out.println("Count birds = " + trees[i].get_CountBirds());
+			System.out.println("Count mana = " + trees[i].get_countMana());
+			System.out.println("Summa = " + (trees[i].get_countMana() * trees[i].get_CountBirds()));
+			System.out.println();
 		}
 	}
 	
@@ -142,6 +204,7 @@ class Birds {
 		pw.println("Mana pull imp = " + TM.get_manPullImp());
 		pw.println("Mana cost birds = " + TM.get_manaCostBirds());
 		pw.println("Mana recorev imp = " + TM.get_manaRecoverImp());
+		TM.coutTrees();
 		TM.calculateAnswer();
 		pw.println("Birds count = " + TM.get_answer());
 	}
